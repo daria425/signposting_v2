@@ -1,0 +1,113 @@
+require("dotenv").config();
+const { MongoClient } = require("mongodb");
+const uri = process.env.MONGO_URI;
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri);
+
+async function getLevel2Options() {
+  try {
+    await client.connect();
+    const db = client.db("signposting_db");
+    const collection = db.collection("tags");
+    const allTags = await collection.distinct("Level 2.eng");
+    console.log(allTags);
+    return allTags;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    await client.close();
+  }
+}
+
+async function getNationalOptions(tag, page = 1, pageSize = 5) {
+  try {
+    await client.connect();
+    const db = client.db("signposting_db");
+    const collection = db.collection("support_options");
+    const projection = {
+      "Name": 1,
+      "Postcode": 1,
+      "Local / National": 1,
+      "Website": 1,
+      "Email": 1,
+      "Phone - call": 1,
+      "Category tags": 1,
+      "Logo-link": 1,
+      "Short text description": 1,
+      "longitude": 1,
+      "latitude": 1,
+    };
+    const foundOptions = await collection.aggregate([
+      {
+        $facet: {
+          meta: [
+            {
+              $match: {
+                $and: [
+                  { "Category tags": tag },
+                  { "Local / National": "National" },
+                ],
+              },
+            },
+            { $count: "totalCount" },
+          ],
+          results: [
+            {
+              $match: {
+                $and: [
+                  { "Category tags": tag },
+                  { "Local / National": "National" },
+                ],
+              },
+            },
+            { $skip: (parseInt(page) - 1) * pageSize },
+            { $limit: pageSize },
+            { $project: projection },
+          ],
+        },
+      },
+    ]);
+    const taggedOptions = await foundOptions.toArray();
+    taggedOptions[0].page = page;
+    return taggedOptions;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    await client.close();
+  }
+}
+
+async function findTags(Level1Option) {
+  try {
+    await client.connect();
+    const db = client.db("signposting_db");
+    const collection = db.collection("tags");
+    const projection = {
+      "_id": 0,
+      "Tag": 1,
+    };
+    const cursor = await collection
+      .find({ "Level 1": Level1Option })
+      .project(projection);
+    const nextOptions = await cursor.toArray();
+    return nextOptions;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    await client.close();
+  }
+}
+
+async function selectOptions(tag, location, page = 1) {
+  if (location == "national only") {
+    const result = await getNationalOptions(tag, page);
+    const options = result[0].results;
+    return options;
+  }
+}
+module.exports = {
+  findTags,
+  getLevel2Options,
+  selectOptions,
+};
