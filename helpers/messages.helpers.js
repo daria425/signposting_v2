@@ -1,5 +1,6 @@
 const { twilioConfig } = require("../config/twilio-config");
 const serviceNumber = twilioConfig.serviceNumber;
+const messagingServiceSid = twilioConfig.messagingServiceSid;
 const createTextMessage = (recipient, textContent) => {
   const message = {
     from: serviceNumber,
@@ -9,12 +10,7 @@ const createTextMessage = (recipient, textContent) => {
   return message;
 };
 
-const createTemplateMessage = (
-  recipient,
-  contentSid,
-  templateVariables,
-  messagingServiceSid
-) => {
+const createTemplateMessage = (recipient, contentSid, templateVariables) => {
   const message = {
     from: messagingServiceSid,
     contentSid: contentSid,

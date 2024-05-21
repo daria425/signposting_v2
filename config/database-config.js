@@ -1,14 +1,15 @@
 const level1Options = [
   "Budget, Debt & Benefits",
-  "Employment",
-  "Families, Young Adults & Elders",
-  "Food, Clothes & Home",
-  "Health",
   "Housing & Bills",
+  "Food, Clothes & Home",
+  "Families, Youth & Elders",
+  "Employment",
+  "Health",
   "Local Community Hubs",
-  "Other",
-  "Specific groups",
   "Vulnerable Situations",
+  "Specific groups",
+  "Other",
 ];
+
 const locationOptions = ["Local Only", "National Only", "Local And National"];
 module.exports = { level1Options, locationOptions };
