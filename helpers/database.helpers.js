@@ -11,7 +11,7 @@ async function getLevel2Options() {
     const db = client.db("signposting_db");
     const collection = db.collection("tags");
     const allTags = await collection.distinct("Tag");
-    console.log(allTags);
+
     return allTags;
   } catch (err) {
     console.log(err);
@@ -218,6 +218,7 @@ async function findTags(Level1Option) {
 async function selectOptions(tag, location, page = 1) {
   if (location == "national only") {
     const result = await getNationalOptions(tag, page);
+    console.log(result);
     const options = result[0].results;
     return options;
   } else if (location === "local only") {

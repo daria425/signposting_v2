@@ -1,9 +1,8 @@
 const { twilioConfig } = require("../config/twilio-config");
-const serviceNumber = twilioConfig.serviceNumber;
 const messagingServiceSid = twilioConfig.messagingServiceSid;
 const createTextMessage = (recipient, textContent) => {
   const message = {
-    from: serviceNumber,
+    from: messagingServiceSid,
     body: textContent,
     to: `whatsapp:+${recipient}`,
   };

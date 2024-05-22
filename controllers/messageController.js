@@ -1,7 +1,7 @@
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const { conversationCache } = require("../utils/cache");
-const { formatTag } = require("../helpers/format.helpers");
+const { formatTag, formatContact } = require("../helpers/format.helpers");
 const { findTemplateSid } = require("../helpers/twilio_api.helpers");
 const { level1Options, locationOptions } = require("../config/database-config");
 const {
@@ -17,7 +17,7 @@ const {
 
 async function beginSignpostingFlow(recipient) {
   const templateVariables = {
-    greeting: "Hello",
+    greeting: "Welcome, please select a category below to see support options",
   };
   const contentSid = "HX279e99f6cd78c32d9d5e152ae1b68f5c";
   await sendTemplateMessage(recipient, contentSid, templateVariables);
@@ -54,46 +54,72 @@ async function respondToListMessage(recipient, listId) {
 }
 
 async function sendOptions(recipient, buttonPayload) {
-  let page = 1;
   const selectedLevel2Option = conversationCache.get("selectedLevel2Option");
-  console.log(selectedLevel2Option);
-  const locationSelection = buttonPayload.toLowerCase();
-  const result = await selectOptions(
-    formatTag(selectedLevel2Option),
-    locationSelection,
-    page
-  );
-  console.log(result);
-  const variableArray = result.map((option) => ({
-    option_description: option["Short text description"],
-    option_image_url: option["Logo-link"].replace(
-      "https://drive.google.com/",
-      ""
-    ),
-    option_location_type: "Location",
-    option_location_value: option["Local / National"],
-    option_name: option["Name"],
-    option_website: option["Website"],
-  }));
-  for (const variables of variableArray) {
-    const contentSid = "HX923eb636865141dd251ddc67e2a1e216";
-    await sendTemplateMessage(recipient, contentSid, variables);
+  if (!selectedLevel2Option) {
+    await sendTextMessage(recipient, "Please specify a category first");
+    return;
+  } else {
+    console.log(selectedLevel2Option);
+    let page = conversationCache.get("page");
+    if (page == undefined) {
+      page = 1;
+    }
+    conversationCache.set("page", page + 1);
+    const locationSelection = buttonPayload.toLowerCase();
+    const result = await selectOptions(
+      formatTag(selectedLevel2Option),
+      locationSelection,
+      page
+    );
+    const variableArray = result.map((option) => ({
+      option_description: option["Short text description"],
+      option_image_url: option["Logo-link"].replace(
+        "https://drive.google.com/",
+        ""
+      ),
+      option_location_type: "Location",
+      option_location_value: option["Local / National"],
+      option_name: option["Name"],
+      option_website: option["Website"],
+    }));
+    for (const [index, value] of variableArray.entries()) {
+      const contentSid = "HX923eb636865141dd251ddc67e2a1e216";
+      await sendTemplateMessage(
+        recipient,
+        contentSid,
+        value,
+        index,
+        variableArray.length
+      );
+    }
   }
 }
 
+async function sendLastOptionMessage(recipient) {
+  const contentSid = "HX31992901024acd003249c56f412fba4f";
+  await sendTemplateMessage(recipient, contentSid);
+}
 async function sendTextMessage(recipient, textContent) {
   const message = createTextMessage(recipient, textContent);
   await client.messages.create(message);
 }
 
-async function sendTemplateMessage(recipient, contentSid, contentVariables) {
+async function sendTemplateMessage(
+  recipient,
+  contentSid,
+  contentVariables,
+  index = 0,
+  trackedArrayLength = null
+) {
   const message = createTemplateMessage(
     recipient,
     contentSid,
     contentVariables
   );
-  const tmpl = await client.messages.create(message);
-  console.log(tmpl);
+  const template = await client.messages.create(message);
+  if (trackedArrayLength && index === trackedArrayLength - 1) {
+    conversationCache.set("last-template", template.sid);
+  }
 }
 module.exports = {
   sendTextMessage,
@@ -102,4 +128,5 @@ module.exports = {
   signpostingStep2,
   beginSignpostingFlow,
   sendOptions,
+  sendLastOptionMessage,
 };

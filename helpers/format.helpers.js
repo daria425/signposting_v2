@@ -18,4 +18,7 @@ function convertTemplateName(templateName) {
   return result;
 }
 
-module.exports = { formatTag, convertTemplateName };
+function formatContact(contact) {
+  return contact.replace("whatsapp:", "");
+}
+module.exports = { formatTag, convertTemplateName, formatContact };
