@@ -11,7 +11,10 @@ router.post("/", async (req, res, next) => {
     const recipient = formatContact(contact);
     const lastMessageSid = conversationCache.get("last-template");
     if (lastMessageSid && lastMessageSid === templateSid) {
-      await sendLastOptionMessage(recipient);
+      const moreOptionsAvailable = conversationCache.get(
+        "more-options-available"
+      );
+      await sendLastOptionMessage(recipient, moreOptionsAvailable);
     }
   }
   res.sendStatus(304);

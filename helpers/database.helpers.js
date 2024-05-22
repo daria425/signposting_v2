@@ -20,7 +20,7 @@ async function getLevel2Options() {
   }
 }
 
-async function getNationalOptions(tag, page = 1, pageSize = 5) {
+async function getNationalOptions(tag, page, pageSize = 5) {
   try {
     await client.connect();
     const db = client.db("signposting_db");
@@ -70,6 +70,8 @@ async function getNationalOptions(tag, page = 1, pageSize = 5) {
     ]);
     const taggedOptions = await foundOptions.toArray();
     taggedOptions[0].page = page;
+    const totalCount = taggedOptions[0].meta[0].totalCount;
+    taggedOptions[0].remaining = totalCount - pageSize * page;
     return taggedOptions;
   } catch (err) {
     console.log(err);
@@ -128,6 +130,8 @@ async function getLocalOptions(tag, page = 1, pageSize = 5) {
     ]);
     const taggedOptions = await foundOptions.toArray();
     taggedOptions[0].page = page;
+    const totalCount = taggedOptions[0].meta[0].totalCount;
+    taggedOptions[0].remaining = totalCount - pageSize * page;
     return taggedOptions;
   } catch (err) {
     console.log(err);
@@ -186,6 +190,8 @@ async function getLocalAndNationalOptions(tag, page = 1, pageSize = 5) {
     ]);
     const taggedOptions = await foundOptions.toArray();
     taggedOptions[0].page = page;
+    const totalCount = taggedOptions[0].meta[0].totalCount;
+    taggedOptions[0].remaining = totalCount - pageSize * page;
     return taggedOptions;
   } catch (err) {
     console.log(err);
@@ -215,20 +221,20 @@ async function findTags(Level1Option) {
   }
 }
 
-async function selectOptions(tag, location, page = 1) {
-  if (location == "national only") {
-    const result = await getNationalOptions(tag, page);
-    console.log(result);
-    const options = result[0].results;
-    return options;
-  } else if (location === "local only") {
-    const result = await getLocalOptions(tag, page);
-    const options = result[0].results;
-    return options;
-  } else if (location === "local and national") {
-    const result = await getLocalAndNationalOptions(tag, page);
-    const options = result[0].results;
-    return options;
+async function selectOptions(tag, location, page, pageSize) {
+  const locationFunctions = {
+    "national only": getNationalOptions,
+    "local only": getLocalOptions,
+    "local and national": getLocalAndNationalOptions,
+  };
+
+  if (locationFunctions[location]) {
+    const result = await locationFunctions[location](tag, page, pageSize);
+    const remaining = result[0].remaining;
+    return {
+      result: result[0].results,
+      remaining: remaining,
+    };
   }
 }
 module.exports = {

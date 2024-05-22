@@ -12,4 +12,6 @@ const level1Options = [
 ];
 
 const locationOptions = ["Local Only", "National Only", "Local And National"];
-module.exports = { level1Options, locationOptions };
+
+const seeMoreOptionsValues = ["see-more", "no-more"];
+module.exports = { level1Options, locationOptions, seeMoreOptionsValues };

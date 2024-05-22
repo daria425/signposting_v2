@@ -1,11 +1,14 @@
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const { conversationCache } = require("../utils/cache");
-const { formatTag, formatContact } = require("../helpers/format.helpers");
+const { formatTag } = require("../helpers/format.helpers");
 const { findTemplateSid } = require("../helpers/twilio_api.helpers");
-const { level1Options, locationOptions } = require("../config/database-config");
 const {
-  findTags,
+  level1Options,
+  locationOptions,
+  seeMoreOptionsValues,
+} = require("../config/button-config");
+const {
   getLevel2Options,
   selectOptions,
 } = require("../helpers/database.helpers");
@@ -53,24 +56,46 @@ async function respondToListMessage(recipient, listId) {
   }
 }
 
-async function sendOptions(recipient, buttonPayload) {
+async function respondToButtonMessage(recipient, buttonPayload) {
+  if (locationOptions.includes(buttonPayload)) {
+    await sendOptions(recipient, buttonPayload);
+  } else if (seeMoreOptionsValues.includes(buttonPayload)) {
+    if (buttonPayload === "see-more") {
+      await sendOptions(recipient, undefined, true);
+    }
+  }
+}
+
+async function sendOptions(
+  recipient,
+  buttonPayload,
+  useCachedSelection = false
+) {
   const selectedLevel2Option = conversationCache.get("selectedLevel2Option");
   if (!selectedLevel2Option) {
     await sendTextMessage(recipient, "Please specify a category first");
     return;
   } else {
-    console.log(selectedLevel2Option);
+    const pageSize = 5;
     let page = conversationCache.get("page");
     if (page == undefined) {
       page = 1;
     }
     conversationCache.set("page", page + 1);
-    const locationSelection = buttonPayload.toLowerCase();
-    const result = await selectOptions(
+    let locationSelection;
+    if (useCachedSelection) {
+      locationSelection = conversationCache.get("location-selection");
+    } else {
+      locationSelection = buttonPayload.toLowerCase();
+      conversationCache.set("location-selection", locationSelection);
+    }
+    const { result, remaining } = await selectOptions(
       formatTag(selectedLevel2Option),
       locationSelection,
       page
     );
+    const moreOptionsAvailable = remaining > pageSize;
+    conversationCache.set("more-options-available", moreOptionsAvailable);
     const variableArray = result.map((option) => ({
       option_description: option["Short text description"],
       option_image_url: option["Logo-link"].replace(
@@ -95,9 +120,15 @@ async function sendOptions(recipient, buttonPayload) {
   }
 }
 
-async function sendLastOptionMessage(recipient) {
-  const contentSid = "HX31992901024acd003249c56f412fba4f";
-  await sendTemplateMessage(recipient, contentSid);
+async function sendLastOptionMessage(recipient, moreOptionsAvailable) {
+  if (moreOptionsAvailable) {
+    const contentSid = "HX31992901024acd003249c56f412fba4f";
+    await sendTemplateMessage(recipient, contentSid);
+  } else {
+    const text =
+      "Thanks for using the service just now, please text 'hi' to search again";
+    await sendTextMessage(recipient, text);
+  }
 }
 async function sendTextMessage(recipient, textContent) {
   const message = createTextMessage(recipient, textContent);
@@ -127,6 +158,6 @@ module.exports = {
   respondToListMessage,
   signpostingStep2,
   beginSignpostingFlow,
-  sendOptions,
+  respondToButtonMessage,
   sendLastOptionMessage,
 };

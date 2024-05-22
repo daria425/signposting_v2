@@ -2,7 +2,7 @@ const express = require("express");
 const {
   beginSignpostingFlow,
   respondToListMessage,
-  sendOptions,
+  respondToButtonMessage,
 } = require("../controllers/messageController");
 
 const router = express.Router();
@@ -15,13 +15,13 @@ router.post("/", async (req, res, next) => {
   const messageBody = body.Body;
   if (messageType === "text" && messageBody.toLowerCase() == "hi") {
     await beginSignpostingFlow(recipient);
-  } else if (messageType === "interactive") {
+  } else if (messageType === "interactive" || messageType === "button") {
     const listId = body.ListId;
     const buttonPayload = body.ButtonPayload;
     if (listId) {
       await respondToListMessage(recipient, listId);
     } else if (buttonPayload) {
-      await sendOptions(recipient, buttonPayload);
+      await respondToButtonMessage(recipient, buttonPayload);
     }
   }
   res.sendStatus(304);
