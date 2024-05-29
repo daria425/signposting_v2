@@ -230,6 +230,7 @@ async function selectOptions(tag, location, page, pageSize) {
 
   if (locationFunctions[location]) {
     const result = await locationFunctions[location](tag, page, pageSize);
+    console.log(result);
     const remaining = result[0].remaining;
     return {
       result: result[0].results,

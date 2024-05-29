@@ -15,6 +15,9 @@ router.post("/", async (req, res, next) => {
         "more-options-available"
       );
       await sendLastOptionMessage(recipient, moreOptionsAvailable);
+      if (moreOptionsAvailable === false && moreOptionsAvailable != undefined) {
+        conversationCache.flushAll();
+      }
     }
   }
   res.sendStatus(304);

@@ -107,6 +107,7 @@ async function sendOptions(
       option_name: option["Name"],
       option_website: option["Website"],
     }));
+    console.log(variableArray);
     for (const [index, value] of variableArray.entries()) {
       const contentSid = "HX923eb636865141dd251ddc67e2a1e216";
       await sendTemplateMessage(

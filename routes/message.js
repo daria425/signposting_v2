@@ -4,6 +4,7 @@ const {
   respondToListMessage,
   respondToButtonMessage,
 } = require("../controllers/messageController");
+const { conversationCache } = require("../utils/cache");
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.post("/", async (req, res, next) => {
   const messageType = body.MessageType;
   const messageBody = body.Body;
   if (messageType === "text" && messageBody.toLowerCase() == "hi") {
+    conversationCache.flushAll();
     await beginSignpostingFlow(recipient);
   } else if (messageType === "interactive" || messageType === "button") {
     const listId = body.ListId;
