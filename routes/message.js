@@ -1,8 +1,10 @@
 const express = require("express");
 const {
   beginSignpostingFlow,
+  beginOnboardingFlow,
   respondToListMessage,
   respondToButtonMessage,
+  handleConversationMessages,
 } = require("../controllers/messageController");
 const { conversationCache } = require("../utils/cache");
 
@@ -14,9 +16,20 @@ router.post("/", async (req, res, next) => {
   const recipient = body.WaId;
   const messageType = body.MessageType;
   const messageBody = body.Body;
-  if (messageType === "text" && messageBody.toLowerCase() == "hi") {
-    conversationCache.flushAll();
-    await beginSignpostingFlow(recipient);
+  if (messageType === "text") {
+    const text = messageBody.toLowerCase();
+    if (text === "hi") {
+      conversationCache.flushAll();
+      conversationCache.set("flow", "signposting", 3600);
+      await beginSignpostingFlow(recipient);
+    } else if (text === "start") {
+      conversationCache.flushAll();
+      conversationCache.set("flow", "onboarding", 3600);
+      await beginOnboardingFlow(recipient);
+    } else {
+      const flow = conversationCache.get("flow");
+      handleConversationMessages(recipient, flow, messageBody);
+    }
   } else if (messageType === "interactive" || messageType === "button") {
     const listId = body.ListId;
     const buttonPayload = body.ButtonPayload;

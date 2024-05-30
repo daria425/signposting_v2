@@ -21,4 +21,17 @@ function convertTemplateName(templateName) {
 function formatContact(contact) {
   return contact.replace("whatsapp:", "");
 }
-module.exports = { formatTag, convertTemplateName, formatContact };
+
+function formatButtonId(buttonPayload) {
+  const splitId = buttonPayload.split("_");
+  return {
+    flowName: splitId[0],
+    flowStep: splitId[1],
+  };
+}
+module.exports = {
+  formatTag,
+  convertTemplateName,
+  formatContact,
+  formatButtonId,
+};

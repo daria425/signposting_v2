@@ -1,7 +1,7 @@
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const { conversationCache } = require("../utils/cache");
-const { formatTag } = require("../helpers/format.helpers");
+const { formatTag, formatButtonId } = require("../helpers/format.helpers");
 const { findTemplateSid } = require("../helpers/twilio_api.helpers");
 const {
   level1Options,
@@ -26,6 +26,10 @@ async function beginSignpostingFlow(recipient) {
   await sendTemplateMessage(recipient, contentSid, templateVariables);
 }
 
+async function beginOnboardingFlow(recipient) {
+  const contentSid = "HX90723e1871ae77cc82e1e3277c798894";
+  await sendTemplateMessage(recipient, contentSid);
+}
 async function signpostingStep2(recipient, contentSid) {
   const templateVariables = {
     select_further_options:
@@ -34,6 +38,49 @@ async function signpostingStep2(recipient, contentSid) {
   await sendTemplateMessage(recipient, contentSid, templateVariables);
 }
 
+async function handleConversationMessages(recipient, flow, messageBody) {
+  if (flow) {
+    if (flow === "onboarding") {
+      const flowStep = Number(conversationCache.get("flowStep"));
+      console.log(flowStep);
+      if (flowStep == 1) {
+        const name = messageBody;
+        conversationCache.set("user", {
+          name: name,
+          waId: recipient,
+          opted_in: false,
+          completed_onboarding: false,
+        });
+        const textContent = `Nice to meet you ${name}!
+      Step 2 of 3: To ensure we have the right information could you
+      share the name of the organisation you work for?`;
+        conversationCache.set("flowStep", flowStep + 1);
+        await sendTextMessage(recipient, textContent);
+      } else if (flowStep == 2) {
+        const organisation = messageBody;
+        const userData = conversationCache.get("user");
+        userData.organisation = organisation;
+        conversationCache.mset([
+          { key: "user", val: userData },
+          { key: "flowStep", val: flowStep + 1 },
+        ]);
+        const textContent =
+          "Step 3 of 3: Great, to better assist you could you let us know the postcode you will be seeking support around?";
+        await sendTextMessage(recipient, textContent);
+      } else if (flowStep == 3) {
+        const userData = conversationCache.get("user");
+        const postcode = messageBody;
+        userData.postcode = postcode;
+        conversationCache.mset([
+          { key: "user", val: userData },
+          { key: "flowStep", val: flowStep + 1 },
+        ]);
+        const contentSid = "HX3a7e836d31150df6bd0354ac316fc799";
+        await sendTemplateMessage(recipient, contentSid);
+      }
+    }
+  }
+}
 async function sendLocationChoiceMessage(recipient) {
   const templateVariables = {
     location_choice_message:
@@ -62,6 +109,19 @@ async function respondToButtonMessage(recipient, buttonPayload) {
   } else if (seeMoreOptionsValues.includes(buttonPayload)) {
     if (buttonPayload === "see-more") {
       await sendOptions(recipient, undefined, true);
+    }
+  } else {
+    const { flowName, flowStep } = formatButtonId(buttonPayload);
+    if (flowName === "onboarding") {
+      if (flowStep == 1) {
+        const textContent = "Step 1 of 3: To begin, what is your name?";
+        conversationCache.set("flowStep", flowStep);
+        await sendTextMessage(recipient, textContent);
+      } else if (flowStep == 4) {
+        const user = conversationCache.get("user");
+        (user.opted_in = true), (user.completed_onboarding = true);
+        console.log(user);
+      }
     }
   }
 }
@@ -161,4 +221,6 @@ module.exports = {
   beginSignpostingFlow,
   respondToButtonMessage,
   sendLastOptionMessage,
+  beginOnboardingFlow,
+  handleConversationMessages,
 };
