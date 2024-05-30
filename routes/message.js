@@ -1,7 +1,7 @@
 const express = require("express");
+const { twilioConfig } = require("../config/twilio-config");
 const {
-  beginSignpostingFlow,
-  beginOnboardingFlow,
+  selectFlow,
   respondToListMessage,
   respondToButtonMessage,
   handleConversationMessages,
@@ -16,16 +16,11 @@ router.post("/", async (req, res, next) => {
   const recipient = body.WaId;
   const messageType = body.MessageType;
   const messageBody = body.Body;
+
   if (messageType === "text") {
     const text = messageBody.toLowerCase();
-    if (text === "hi") {
-      conversationCache.flushAll();
-      conversationCache.set("flow", "signposting", 3600);
-      await beginSignpostingFlow(recipient);
-    } else if (text === "start") {
-      conversationCache.flushAll();
-      conversationCache.set("flow", "onboarding", 3600);
-      await beginOnboardingFlow(recipient);
+    if (twilioConfig.flowTriggers.includes(text)) {
+      selectFlow(recipient, text);
     } else {
       const flow = conversationCache.get("flow");
       handleConversationMessages(recipient, flow, messageBody);

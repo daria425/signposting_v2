@@ -30,6 +30,18 @@ async function beginOnboardingFlow(recipient) {
   const contentSid = "HX90723e1871ae77cc82e1e3277c798894";
   await sendTemplateMessage(recipient, contentSid);
 }
+
+async function selectFlow(recipient, text) {
+  if (text === "hi") {
+    conversationCache.flushAll();
+    conversationCache.set("flow", "signposting", 3600);
+    await beginSignpostingFlow(recipient);
+  } else if (text === "start") {
+    conversationCache.flushAll();
+    conversationCache.set("flow", "onboarding", 3600);
+    await beginOnboardingFlow(recipient);
+  }
+}
 async function signpostingStep2(recipient, contentSid) {
   const templateVariables = {
     select_further_options:
@@ -223,4 +235,5 @@ module.exports = {
   sendLastOptionMessage,
   beginOnboardingFlow,
   handleConversationMessages,
+  selectFlow,
 };
