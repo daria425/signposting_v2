@@ -1,5 +1,6 @@
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
+const { User } = require("../models/user");
 const { conversationCache } = require("../utils/cache");
 const { formatTag, formatButtonId } = require("../helpers/format.helpers");
 const { findTemplateSid } = require("../helpers/twilio_api.helpers");
@@ -7,6 +8,7 @@ const {
   level1Options,
   locationOptions,
   seeMoreOptionsValues,
+  supportedLanguages,
 } = require("../config/button-config");
 const {
   getLevel2Options,
@@ -17,7 +19,7 @@ const {
   createTextMessage,
   createTemplateMessage,
 } = require("../helpers/messages.helpers");
-
+const { saveUser } = require("../helpers/database.helpers");
 async function beginSignpostingFlow(recipient) {
   const templateVariables = {
     greeting: "Welcome, please select a category below to see support options",
@@ -57,11 +59,13 @@ async function handleConversationMessages(recipient, flow, messageBody) {
       console.log(flowStep);
       if (flowStep == 1) {
         const name = messageBody;
+        const languageChoice = conversationCache.get("user");
         conversationCache.set("user", {
           name: name,
-          waId: recipient,
+          WaId: recipient,
           opted_in: false,
           completed_onboarding: false,
+          language: languageChoice,
         });
         const textContent = `Nice to meet you ${name}!
       Step 2 of 3: To ensure we have the right information could you
@@ -111,6 +115,12 @@ async function respondToListMessage(recipient, listId) {
     if (level2Options.includes(listId)) {
       conversationCache.set("selectedLevel2Option", listId);
       await sendLocationChoiceMessage(recipient);
+    } else if (supportedLanguages.includes(listId)) {
+      conversationCache.set("user", {
+        language: listId,
+      });
+      const textContent = "Step 1 of 3: To begin, what is your name?";
+      await sendTextMessage(recipient, textContent);
     }
   }
 }
@@ -124,15 +134,26 @@ async function respondToButtonMessage(recipient, buttonPayload) {
     }
   } else {
     const { flowName, flowStep } = formatButtonId(buttonPayload);
+    console.log(flowName, flowStep);
     if (flowName === "onboarding") {
       if (flowStep == 1) {
-        const textContent = "Step 1 of 3: To begin, what is your name?";
         conversationCache.set("flowStep", flowStep);
-        await sendTextMessage(recipient, textContent);
+        const contentSid = "HX4db699b2bfdea11ad55ed3735333be0d";
+        await sendTemplateMessage(recipient, contentSid);
       } else if (flowStep == 4) {
         const user = conversationCache.get("user");
         (user.opted_in = true), (user.completed_onboarding = true);
-        console.log(user);
+        const newUser = new User(
+          user.name,
+          user.WaId,
+          user.organisation,
+          user.postcode,
+          user.completed_onboarding,
+          user.opted_in,
+          user.language
+        );
+        await saveUser(newUser);
+        await beginSignpostingFlow(user.WaId);
       }
     }
   }
@@ -174,8 +195,12 @@ async function sendOptions(
         "https://drive.google.com/",
         ""
       ),
-      option_location_type: "Location",
-      option_location_value: option["Local / National"],
+      option_location_type:
+        option["Local / National"] === "National" ? "Location" : "Postcode",
+      option_location_value:
+        option["Local / National"] === "National"
+          ? "National"
+          : option["Postcode"],
       option_name: option["Name"],
       option_website: option["Website"],
     }));

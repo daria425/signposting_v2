@@ -238,8 +238,42 @@ async function selectOptions(tag, location, page, pageSize) {
     };
   }
 }
+async function saveUser(user) {
+  try {
+    await client.connect();
+    const db = client.db("signposting_db");
+    const collection = db.collection("users");
+    const cursor = await collection.find({});
+    const users = await cursor.toArray();
+    const alreadySaved = users.find((savedUser) => savedUser.WaId == user.WaId);
+    if (alreadySaved) {
+      console.log("user is already saved to database");
+      return;
+    } else await collection.insertOne(user);
+  } catch (err) {
+    console.log(err);
+  } finally {
+    await client.close();
+  }
+}
+
+async function getUser(recipient) {
+  try {
+    await client.connect();
+    const db = client.db("signposting_db");
+    const collection = db.collection("users");
+    const user = await collection.findOne({ "WaId": recipient });
+    return user;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    await client.close();
+  }
+}
 module.exports = {
   findTags,
   getLevel2Options,
   selectOptions,
+  saveUser,
+  getUser,
 };
