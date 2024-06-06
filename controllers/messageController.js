@@ -59,13 +59,11 @@ async function handleConversationMessages(recipient, flow, messageBody) {
       console.log(flowStep);
       if (flowStep == 1) {
         const name = messageBody;
-        const languageChoice = conversationCache.get("user");
         conversationCache.set("user", {
           name: name,
           WaId: recipient,
           opted_in: false,
           completed_onboarding: false,
-          language: languageChoice,
         });
         const textContent = `Nice to meet you ${name}!
       Step 2 of 3: To ensure we have the right information could you
@@ -107,7 +105,7 @@ async function sendLocationChoiceMessage(recipient) {
 }
 
 async function respondToListMessage(recipient, listId) {
-  if (level1Options.includes(listId)) {
+  if (level1Options["english"].includes(listId)) {
     const contentSid = await findTemplateSid(listId);
     await signpostingStep2(recipient, contentSid);
   } else {
@@ -115,12 +113,6 @@ async function respondToListMessage(recipient, listId) {
     if (level2Options.includes(listId)) {
       conversationCache.set("selectedLevel2Option", listId);
       await sendLocationChoiceMessage(recipient);
-    } else if (supportedLanguages.includes(listId)) {
-      conversationCache.set("user", {
-        language: listId,
-      });
-      const textContent = "Step 1 of 3: To begin, what is your name?";
-      await sendTextMessage(recipient, textContent);
     }
   }
 }
@@ -138,8 +130,8 @@ async function respondToButtonMessage(recipient, buttonPayload) {
     if (flowName === "onboarding") {
       if (flowStep == 1) {
         conversationCache.set("flowStep", flowStep);
-        const contentSid = "HX4db699b2bfdea11ad55ed3735333be0d";
-        await sendTemplateMessage(recipient, contentSid);
+        const textContent = "Step 1 of 3: To begin, what is your name?";
+        await sendTextMessage(recipient, textContent);
       } else if (flowStep == 4) {
         const user = conversationCache.get("user");
         (user.opted_in = true), (user.completed_onboarding = true);
@@ -187,7 +179,7 @@ async function sendOptions(
       locationSelection,
       page
     );
-    const moreOptionsAvailable = remaining > pageSize;
+    const moreOptionsAvailable = remaining >= pageSize;
     conversationCache.set("more-options-available", moreOptionsAvailable);
     const variableArray = result.map((option) => ({
       option_description: option["Short text description"],

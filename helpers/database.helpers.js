@@ -181,6 +181,7 @@ async function getLocalAndNationalOptions(tag, page = 1, pageSize = 5) {
                 ],
               },
             },
+            { $sort: { "Local / National": 1 } },
             { $skip: (parseInt(page) - 1) * pageSize },
             { $limit: pageSize },
             { $project: projection },

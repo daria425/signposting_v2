@@ -30,4 +30,27 @@ async function findTemplateSid(templateName) {
     return null;
   }
 }
-module.exports = { listTemplates, findTemplateSid };
+
+async function createTemplate(template) {
+  const auth = {
+    accountSid: process.env.TWILIO_ACCOUNT_SID,
+    authToken: process.env.TWILIO_AUTH_TOKEN,
+  };
+  const url = "https://content.twilio.com/v1/Content";
+  try {
+    const response = await axios.post(url, template, {
+      auth: auth,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log("Response data:", response.data);
+  } catch (error) {
+    console.error(
+      "Error creating content:",
+      error.response ? error.response.data : error.message
+    );
+  }
+}
+
+module.exports = { listTemplates, findTemplateSid, createTemplate };
