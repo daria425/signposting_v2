@@ -8,7 +8,6 @@ const {
   level1Options,
   locationOptions,
   seeMoreOptionsValues,
-  supportedLanguages,
 } = require("../config/button-config");
 const {
   getLevel2Options,
@@ -19,7 +18,7 @@ const {
   createTextMessage,
   createTemplateMessage,
 } = require("../helpers/messages.helpers");
-const { saveUser } = require("../helpers/database.helpers");
+const { saveUser, updateUser } = require("../helpers/database.helpers");
 async function beginSignpostingFlow(recipient) {
   const templateVariables = {
     greeting: "Welcome, please select a category below to see support options",
@@ -33,14 +32,16 @@ async function beginOnboardingFlow(recipient) {
   await sendTemplateMessage(recipient, contentSid);
 }
 
-async function selectFlow(recipient, text) {
-  if (text === "hi") {
+async function selectFlow(recipient, text, registeredUser) {
+  console.log(!registeredUser);
+  if (text === "hi" && registeredUser) {
     conversationCache.flushAll();
     conversationCache.set("flow", "signposting", 3600);
     await beginSignpostingFlow(recipient);
-  } else if (text === "start") {
+  } else if (text === "start" || !registeredUser) {
     conversationCache.flushAll();
     conversationCache.set("flow", "onboarding", 3600);
+    console.log("flow should begin");
     await beginOnboardingFlow(recipient);
   }
 }
@@ -56,16 +57,17 @@ async function handleConversationMessages(recipient, flow, messageBody) {
   if (flow) {
     if (flow === "onboarding") {
       const flowStep = Number(conversationCache.get("flowStep"));
+      const userData = conversationCache.get("user");
       console.log(flowStep);
       if (flowStep == 1) {
-        const name = messageBody;
+        const username = messageBody;
         conversationCache.set("user", {
-          name: name,
-          WaId: recipient,
+          ...userData,
+          username: username,
           opted_in: false,
           completed_onboarding: false,
         });
-        const textContent = `Nice to meet you ${name}!
+        const textContent = `Nice to meet you ${username}!
       Step 2 of 3: To ensure we have the right information could you
       share the name of the organisation you work for?`;
         conversationCache.set("flowStep", flowStep + 1);
@@ -117,7 +119,11 @@ async function respondToListMessage(recipient, listId) {
   }
 }
 
-async function respondToButtonMessage(recipient, buttonPayload) {
+async function respondToButtonMessage(
+  recipient,
+  recipientProfileName,
+  buttonPayload
+) {
   if (locationOptions.includes(buttonPayload)) {
     await sendOptions(recipient, buttonPayload);
   } else if (seeMoreOptionsValues.includes(buttonPayload)) {
@@ -131,20 +137,26 @@ async function respondToButtonMessage(recipient, buttonPayload) {
       if (flowStep == 1) {
         conversationCache.set("flowStep", flowStep);
         const textContent = "Step 1 of 3: To begin, what is your name?";
+        const userData = {
+          "WaId": recipient,
+          "ProfileName": recipientProfileName,
+        };
+        conversationCache.set("user", userData);
+        await saveUser(userData);
         await sendTextMessage(recipient, textContent);
       } else if (flowStep == 4) {
         const user = conversationCache.get("user");
         (user.opted_in = true), (user.completed_onboarding = true);
         const newUser = new User(
-          user.name,
+          user.username,
+          user.ProfileName,
           user.WaId,
           user.organisation,
           user.postcode,
           user.completed_onboarding,
-          user.opted_in,
-          user.language
+          user.opted_in
         );
-        await saveUser(newUser);
+        await updateUser(recipient, newUser);
         await beginSignpostingFlow(user.WaId);
       }
     }

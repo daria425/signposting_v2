@@ -239,18 +239,19 @@ async function selectOptions(tag, location, page, pageSize) {
     };
   }
 }
-async function saveUser(user) {
+async function saveUser(userData) {
   try {
     await client.connect();
     const db = client.db("signposting_db");
     const collection = db.collection("users");
-    const cursor = await collection.find({});
-    const users = await cursor.toArray();
-    const alreadySaved = users.find((savedUser) => savedUser.WaId == user.WaId);
-    if (alreadySaved) {
-      console.log("user is already saved to database");
+    const user = await collection.findOne({ "WaId": userData.WaId });
+    if (user) {
       return;
-    } else await collection.insertOne(user);
+    } else
+      await collection.insertOne({
+        "WaId": userData.WaId,
+        "ProfileName": userData.ProfileName,
+      });
   } catch (err) {
     console.log(err);
   } finally {
@@ -258,6 +259,18 @@ async function saveUser(user) {
   }
 }
 
+async function updateUser(recipient, userObject) {
+  try {
+    await client.connect();
+    const db = client.db("signposting_db");
+    const collection = db.collection("users");
+    await collection.findOneAndReplace({ "WaId": recipient }, userObject);
+  } catch (err) {
+    console.log(err);
+  } finally {
+    await client.close();
+  }
+}
 async function getUser(recipient) {
   try {
     await client.connect();
@@ -277,4 +290,5 @@ module.exports = {
   selectOptions,
   saveUser,
   getUser,
+  updateUser,
 };
