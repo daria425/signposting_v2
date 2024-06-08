@@ -14,6 +14,17 @@ async function listTemplates() {
   return response.data;
 }
 
+async function listMessages() {
+  const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json?`;
+  const auth = {
+    username: accountSid,
+    password: authToken,
+  };
+  const response = await axios.get(url, {
+    auth,
+  });
+  return response.data;
+}
 async function findTemplateSid(templateName) {
   try {
     const templates = await listTemplates();
@@ -53,4 +64,9 @@ async function createTemplate(template) {
   }
 }
 
-module.exports = { listTemplates, findTemplateSid, createTemplate };
+module.exports = {
+  listTemplates,
+  findTemplateSid,
+  createTemplate,
+  listMessages,
+};

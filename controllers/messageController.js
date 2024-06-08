@@ -210,7 +210,7 @@ async function sendOptions(
     }));
     console.log(variableArray);
     for (const [index, value] of variableArray.entries()) {
-      const contentSid = "HX923eb636865141dd251ddc67e2a1e216";
+      const contentSid = "HX1034bca67ad6584bc691853c01b067d2";
       await sendTemplateMessage(
         recipient,
         contentSid,
