@@ -1,0 +1,230 @@
+repo_name: daria425/signposting_v2
+report_id: 6c364328ec03fb398709f8f13ad44b60
+version: 0.1
+repo_type: Public
+timestamp: '2024-06-16T18:03:51+00:00'
+requested_by: daria425
+provider: github
+branch: main
+detected_tools_count: 16
+tools:
+- name: CSS 3
+  description: The latest evolution of the Cascading Style Sheets language
+  website_url: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS3
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/6727/css.png
+  detection_source_url: https://github.com/daria425/signposting_v2
+  detection_source: Repo Metadata
+- name: JavaScript
+  description: Lightweight, interpreted, object-oriented language with first-class
+    functions
+  website_url: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1209/javascript.jpeg
+  detection_source_url: https://github.com/daria425/signposting_v2
+  detection_source: Repo Metadata
+- name: ExpressJS
+  description: Sinatra inspired web development framework for node.js -- insanely
+    fast, flexible, and simple
+  website_url: http://expressjs.com/
+  version: 4.16.4
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Microframeworks (Backend)
+  image_url: https://img.stackshare.io/service/1163/hashtag.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-07 17:54:05.000000000 Z
+- name: MongoDB
+  description: The database for giant ideas
+  website_url: http://www.mongodb.com/
+  version: 6.6.1
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1030/leaf-360x360.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-07 17:54:05.000000000 Z
+- name: Dotenv
+  description: Loads environment variables from .env for Nodejs projects
+  website_url: https://github.com/motdotla/dotenv
+  license: BSD-2-Clause
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Server Configuration and Automation
+  image_url: https://img.stackshare.io/service/8067/default_90dcb1286af7685c68df319c764b80704df1155b.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-08 15:04:52.000000000 Z
+- name: ESLint
+  description: The fully pluggable JavaScript code quality tool
+  website_url: http://eslint.org/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Code Review
+  image_url: https://img.stackshare.io/service/3337/Q4L7Jncy.jpg
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-07 17:54:05.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/daria425/signposting_v2
+  detection_source: Repo Metadata
+- name: npm
+  description: The package manager for JavaScript.
+  website_url: https://www.npmjs.com/
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Front End Package Manager
+  image_url: https://img.stackshare.io/service/1120/lejvzrnlpb308aftn31u.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-07 17:54:05.000000000 Z
+- name: Twilio
+  description: Bring voice and messaging to your web and mobile applications.
+  website_url: http://www.twilio.com
+  open_source: false
+  hosted_saas: true
+  category: Communications
+  sub_category: Voice and SMS
+  image_url: https://img.stackshare.io/service/130/VrwpNfjh_400x400.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-08 15:04:52.000000000 Z
+- name: axios
+  description: Promise based HTTP client for the browser and node.js
+  website_url: https://github.com/mzabriskie/axios
+  version: 1.7.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Javascript Utilities & Libraries
+  image_url: https://img.stackshare.io/no-img-open-source.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-21 16:30:09.000000000 Z
+- name: express
+  description: Fast, unopinionated, minimalist web framework
+  package_url: https://www.npmjs.com/express
+  version: 4.16.4
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15818/default_db4a7791d2f1174547374b9b587bc10fec088a5a.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-07 17:54:05.000000000 Z
+  vulnerabilities:
+  - name: qs vulnerable to Prototype Pollution
+    cve_id: CVE-2022-24999
+    cve_url: https://github.com/advisories/GHSA-hrpp-h998-j3pp
+    detected_date: Dec 7
+    severity: high
+    first_patched: 4.17.3
+  - name: Express.js Open Redirect in malformed URLs
+    cve_id: CVE-2024-29041
+    cve_url: https://github.com/advisories/GHSA-rv95-896h-c2vc
+    detected_date: Mar 26
+    severity: moderate
+    first_patched: 4.19.2
+- name: body-parser
+  description: Node.js body parsing middleware
+  package_url: https://www.npmjs.com/body-parser
+  version: 1.20.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15906/default_7c39a83d4acd952df89b1ebfdb94c8646324fbf1.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-07 17:54:05.000000000 Z
+- name: cookie-parser
+  description: Parse HTTP request cookies
+  package_url: https://www.npmjs.com/cookie-parser
+  version: 1.4.6
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16136/default_def3edb85d7fbd20200a5cd7d0a1679e31bc8b3d.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-07 17:54:05.000000000 Z
+- name: debug
+  description: Small debugging utility
+  package_url: https://www.npmjs.com/debug
+  version: 4.3.4
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15852/default_a2f722724df977d0f7752839e5d8845ab41f69d5.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-07 17:54:05.000000000 Z
+- name: morgan
+  description: HTTP request logger middleware for node.js
+  package_url: https://www.npmjs.com/morgan
+  version: 1.9.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16097/default_c7b204838197013798409fa2b4dafce450edc7fb.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-08 15:04:52.000000000 Z
+- name: node-cache
+  description: Simple and fast NodeJS internal caching
+  package_url: https://www.npmjs.com/node-cache
+  version: 5.1.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17328/default_b39374c3a74b433364bfdbff07be26214bf186fd.png
+  detection_source_url: https://github.com/daria425/signposting_v2/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: daria425
+  last_updated_on: 2024-05-10 18:29:19.000000000 Z
