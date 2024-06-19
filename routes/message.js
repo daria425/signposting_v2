@@ -8,16 +8,12 @@ const {
 } = require("../controllers/messageController");
 const { conversationCache } = require("../utils/cache");
 const { getUser } = require("../helpers/database.helpers");
-const { logMessageAsJSON } = require("../utils/logMessage");
 
 const router = express.Router();
 
 router.post("/", async (req, res, _next) => {
   const body = JSON.parse(JSON.stringify(req.body));
   console.log("recieved message", body);
-  if (process.env.NODE_ENV === "development") {
-    logMessageAsJSON(body);
-  }
   const recipient = body.WaId;
   const messageType = body.MessageType;
   const messageBody = body.Body;
