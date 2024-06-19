@@ -129,6 +129,10 @@ async function respondToButtonMessage(
   } else if (seeMoreOptionsValues.includes(buttonPayload)) {
     if (buttonPayload === "see-more") {
       await sendOptions(recipient, undefined, true);
+    } else {
+      const text =
+        "Thanks for using the service just now, please text 'hi' to search again";
+      await sendTextMessage(recipient, text);
     }
   } else {
     const { flowName, flowStep } = formatButtonId(buttonPayload);
